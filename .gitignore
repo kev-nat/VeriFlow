@@ -1,4 +1,3 @@
 .env
 results/
-dynamic_supply_chain_logistics_dataset.csv
-test_data.csv
+data/
