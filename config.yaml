@@ -1,6 +1,15 @@
 # Models Configuration
 supervisor_model: "gpt-3.5-turbo"
-worker_model: "gpt-4o-mini"
+# worker_model: "gpt-4o-mini"
+worker_model: "llama3.2:1b"
+# worker_model: "qwen2.5:1.5b"
+# worker_model: "smollm2:1.7b"
+# worker_model: "gemma2:2b"
+# worker_model: "cogito:3b"
+# worker_model: "phi3.5:3.8b"
+# worker_model: "gemma3:4b"
+# worker_model: "mistral:7b" 
+# worker_model: "openhermes:v2.5"
 
 # ------------------------------------------------------------------------------------
 # Agent Definitions
@@ -212,7 +221,7 @@ supervisor:
     # Anything below 'MODERATE' is considered LOW.
   
   # Weights for each agent's score to calculate the final global score.
-  # This allows prioritizing certain risk types (e.g., human factors might be more critical).
+  # This allows prioritizing certain risk types (ex: human factors might be more critical).
   agent_weights:
     agent_1_geolocation: 0.20
     agent_2_fuel: 0.10
