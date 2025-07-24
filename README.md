@@ -12,7 +12,7 @@ The increasing complexity of global supply chains necessitates advanced systems 
 ## Approaches
 - **Hierarchical Multi-Agent Design:** A supervisor agent orchestrates a team of six specialized worker agents, each focused on a specific domain (e.g., Geolocation, Logistics, Human Factors), ensuring focused and efficient analysis.
 - **Hybrid AI Architecture (The "Scaffolding Effect"):** The system separates deterministic logic from generative reasoning. A reliable, code-based rules engine handles precise anomaly flagging and scoring, allowing the SLM agents to focus on their core strength: summarizing the findings and synthesizing recommendations.
-- **Config-Driven Modularity:** All system logic—including agent responsibilities, anomaly rules, scoring weights, and model selection—is controlled via a single config.yaml file, making the entire framework highly adaptable.
+- **Config-Driven Modularity:** All system logic including agent responsibilities, anomaly rules, scoring weights, and model selection—is controlled via a single config.yaml file, making the entire framework highly adaptable.
 
 ## Impacts
 - **Validated System Reliability:** The architecture's deterministic core was validated with 100% accuracy in both Anomaly Detection and Risk Level classification across all tested models.
