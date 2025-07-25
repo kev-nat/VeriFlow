@@ -218,10 +218,12 @@ with chart_col:
                 "color": False
             },
         )
-        fig_scatter_map.update_traces(marker=dict(size=10, opacity=0.7), hovertemplate='<br>'.join([
-            "Shipment: %{customdata[0]}",
-            "Global Score: %{customdata[1]:.2%}"
-        ]))
+        fig_scatter_map.update_traces(marker=dict(size=10, opacity=0.7), hovertemplate=(
+            "%{customdata[0]}<br>"
+            "(%{x:.2f}, %{y:.2f})<extra></extra>"
+            )
+        )
+
         fig_scatter_map.update_layout(
             title="Shipment Risk Distribution Map",
             xaxis_title="Longitude",
@@ -258,24 +260,73 @@ with map_col:
         st.info("No anomaly data available for 'Anomaly Breakdown' chart.")
 
     # --- UNDERNEATH: Live AI Recommendations ---
-    st.subheader("Live AI Recommendations")
 
-    high_risk_shipments = filtered_df[filtered_df['risk_level'] == 'HIGH'].sort_values('global_score', ascending=False).head(3)
+    high_risk_shipments = (
+        filtered_df[filtered_df['risk_level'] == 'HIGH']
+        .sort_values('global_score', ascending=False)
+        .head(3)
+    )
 
     if not high_risk_shipments.empty:
-        for index, row in high_risk_shipments.iterrows():
+        for _, row in high_risk_shipments.iterrows():
             with st.container(border=True):
                 st.markdown(f"**Shipment ID:** `{row['shipment_id']}` | **Risk Score:** `{row['global_score']:.1%}`")
+
                 for rec in row['recommendations']:
-                    if "IMMEDIATE:" in rec:
-                        st.error(f"🚨 {rec}")
+                    parts = rec.split(":", 1)
+                    if len(parts) == 2:
+                        urgency, message = parts
+                        urgency = urgency.strip().upper()
+                        message = message.strip()
+
+                        if urgency == "IMMEDIATE":
+                            st.markdown(f"🔍 *Problem:* {message}")
+                            st.markdown(f"💡 *Suggested Action:* Take immediate corrective action.")
+                        else:
+                            st.markdown(f"🔸 *Note:* {message}")
                     else:
-                        st.warning(f"🔸 {rec}")
+                        st.markdown(f"🔸 {rec}")
     else:
         st.success("No high-risk shipments detected for the selected filters.")
 
 
+
 # --- DATA TABLE ---
+import pandas as pd
+
+# Create a copy to work with
+log_df = filtered_df.copy()
+
+# Prepare columns to extract
+def extract_recommendation_parts(recs):
+    problem, action = "", ""
+    if isinstance(recs, list) and len(recs) >= 2:
+        problem = recs[0].replace("IMMEDIATE:", "").strip()
+        action = recs[1].replace("ACTION:", "").strip()
+    elif isinstance(recs, list) and len(recs) == 1:
+        problem = recs[0].replace("IMMEDIATE:", "").strip()
+    return problem, action
+
+# Apply the function
+log_df[['Problem', 'Recommended Action']] = log_df['recommendations'].apply(
+    lambda recs: pd.Series(extract_recommendation_parts(recs))
+)
+
+# Drop redundant or duplicate columns if needed
+columns_to_show = [
+    'timestamp',
+    'shipment_id',
+    'risk_level',
+    'global_score',
+    'anomaly_source',
+    'Problem',
+    'Recommended Action'
+]
+
+# Optional: format global_score as %
+log_df['global_score'] = log_df['global_score'].apply(lambda x: f"{x*100:.2f}%")
+
+# Display as final table
 st.markdown("---")
 st.subheader("Shipment Data Explorer")
-st.dataframe(filtered_df[['timestamp', 'shipment_id', 'risk_level', 'global_score', 'anomaly_source', 'risk_classification']].reset_index(drop=True))
+st.dataframe(log_df[columns_to_show].reset_index(drop=True), use_container_width=True)
